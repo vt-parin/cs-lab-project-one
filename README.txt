@@ -48,6 +48,9 @@ The project includes tests for item validation, inventory management, grocery li
 
 If using JUnit, run the JUnit test class through Eclipse or your JUnit-compatible Java environment.
 
+   javac -cp .:junit-4.13.2.jar:hamcrest-core-1.3.jar *.java
+   java -cp .:junit-4.13.2.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore TestSuite
+
 ## Requirements
 
 * Java Development Kit (JDK)
