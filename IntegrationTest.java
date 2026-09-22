@@ -17,7 +17,7 @@ public class IntegrationTest {
         inv.addItem(new Item("Milk", 3.50, 5));
         inv.addItem(new Item("Bread", 2.25, 10));
         s.addUser(new Customer("alice", "pw1"));
-        s.addUser(new Worker("bob", "pw2", inv));
+        s.addUser(new Worker("bob", "pw2", s));
         return s;
     }
 
@@ -32,7 +32,14 @@ public class IntegrationTest {
         check("login bad: null inputs return null", s.login(null, null) == null);
         check("login: worker logs in as Worker", s.login("bob", "pw2") instanceof Worker);
         check("addUser bad: duplicate username rejected", !s.addUser(new Customer("Alice", "x")));
-        check("addUser bad: empty username rejected", !s.addUser(new Customer("  ", "x")));
+        boolean rejectedEmptyUsername;
+        try {
+            new Customer("  ", "x");
+            rejectedEmptyUsername = false;
+        } catch (IllegalArgumentException e) {
+            rejectedEmptyUsername = true;
+        }
+        check("addUser bad: empty username rejected", rejectedEmptyUsername);
 
         // ---- purchaseList ----
         s = newStore();
@@ -67,12 +74,12 @@ public class IntegrationTest {
 
         alice.addItem(s.getInventory().findItem("Milk"), 3);       // only 2 left
         check("flow bad: checkout fails when stock too low", !alice.checkout(s));
-        check("flow bad: list kept after failed checkout", alice.getGroceryList().size() == 1);
+        check("flow bad: list kept after failed checkout", alice.getGroceryList().getItems().size() == 1);
         check("flow bad: stock untouched after failed checkout", s.getInventory().findItem("Milk").getStockCount() == 2);
 
         // ---- Shared state: worker and customer see the same store ----
         Worker bob = (Worker) s.login("bob", "pw2");
-        check("sync: worker restocks Milk +10", bob.addStock(new Item("Milk", 3.50, 10)));
+        check("sync: worker restocks Milk +10", bob.updateStock("Milk", 10));
         check("sync: customer's same list now checks out", alice.checkout(s));
         check("sync: Milk 12 - 3 = 9", s.getInventory().findItem("Milk").getStockCount() == 9);
         check("sync: worker adds new item, customer can find it",
