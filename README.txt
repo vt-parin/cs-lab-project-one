@@ -20,13 +20,13 @@ The main Java classes are:
 
 From the directory containing the `.java` files, run:
 
+ javac *.java
+
 ## How to Run
 
 After compiling, run:
 
-```bash
 java Main
-```
 
 ## Demo Login
 
