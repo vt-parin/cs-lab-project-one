@@ -32,15 +32,7 @@ java Main
 
 The program includes the following demo accounts:
 
-**Customer**
-
-* Username: `customer`
-* Password: `1234`
-
-**Worker**
-
-* Username: `worker`
-* Password: `1234`
+Demo logins:  customer / pass123    worker / pass123
 
 ## Testing
 
