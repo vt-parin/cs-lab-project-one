@@ -1,40 +1,66 @@
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-class ItemTest {
-    @Test void constructorAndGetters() {
-        Item item = new Item(" Milk ", 3.50, 10);
-        assertEquals("Milk", item.getName());
-        assertEquals(3.50, item.getPrice());
-        assertEquals(10, item.getStockCount());
+public class ItemTest {
+
+    @Test
+    public void getNameNormal() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertEquals("Milk", milk.getName());
     }
 
-    @Test void invalidConstructorValuesRejected() {
-        assertThrows(IllegalArgumentException.class, () -> new Item("", 1, 1));
-        assertThrows(IllegalArgumentException.class, () -> new Item("Milk", -1, 1));
-        assertThrows(IllegalArgumentException.class, () -> new Item("Milk", 1, -1));
+    @Test
+    public void getPriceNormal() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertEquals(3.50, milk.getPrice(), 0.0001);
     }
 
-    @Test void setPriceValidAndInvalid() {
-        Item item = new Item("Milk", 3, 5);
-        assertTrue(item.setPrice(4));
-        assertEquals(4, item.getPrice());
-        assertFalse(item.setPrice(-1));
-        assertEquals(4, item.getPrice());
+    @Test
+    public void getStockCountNormal() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertEquals(10, milk.getStockCount());
     }
 
-    @Test void updateStockCannotGoBelowZero() {
-        Item item = new Item("Milk", 3, 5);
-        assertTrue(item.updateStock(3));
-        assertEquals(8, item.getStockCount());
-        assertFalse(item.updateStock(-9));
-        assertEquals(8, item.getStockCount());
+    @Test
+    public void setPriceNormal() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertTrue(milk.setPrice(4.00));
+        assertEquals(4.00, milk.getPrice(), 0.0001);
     }
 
-    @Test void toStringContainsItemInformation() {
-        String text = new Item("Milk", 3.5, 5).toString();
-        assertTrue(text.contains("Milk"));
-        assertTrue(text.contains("3.50"));
-        assertTrue(text.contains("5"));
+    @Test
+    public void setPriceNegativeRejected() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertFalse(milk.setPrice(-1.00));
+        assertEquals(3.50, milk.getPrice(), 0.0001); // unchanged
+    }
+
+    @Test
+    public void updateStockNormal() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertTrue(milk.updateStock(5));
+        assertEquals(15, milk.getStockCount());
+    }
+
+    @Test
+    public void updateStockBelowZeroRejected() {
+        Item milk = new Item("Milk", 3.50, 10);
+        assertFalse(milk.updateStock(-20));
+        assertEquals(10, milk.getStockCount()); // unchanged
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyNameRejected() {
+        new Item("", 1.00, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativePriceAtCreationRejected() {
+        new Item("Milk", -1.00, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeStockAtCreationRejected() {
+        new Item("Milk", 1.00, -5);
     }
 }

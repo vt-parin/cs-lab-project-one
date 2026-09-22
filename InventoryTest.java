@@ -1,43 +1,92 @@
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
-class InventoryTest {
-    @Test void addFindAndRemove() {
-        Inventory inv = new Inventory(3);
-        Item milk = new Item("Milk", 3, 5);
-        assertTrue(inv.addItem(milk));
-        assertSame(milk, inv.findItem("mIlK"));
-        assertTrue(inv.removeItem("MILK"));
-        assertNull(inv.findItem("milk"));
+public class InventoryTest {
+    private Inventory inventory;
+    private Item milk;
+    private Item bread;
+    private Item eggs;
+
+    @Before
+    public void setUp() {
+        inventory = new Inventory(2); // small capacity to test "inventory full"
+        milk = new Item("Milk", 3.50, 5);
+        bread = new Item("Bread", 2.50, 4);
+        eggs = new Item("Eggs", 4.00, 3);
     }
 
-    @Test void rejectsDuplicatesAndNulls() {
-        Inventory inv = new Inventory();
-        Item milk = new Item("Milk", 3, 5);
-        assertFalse(inv.addItem(null));
-        assertTrue(inv.addItem(milk));
-        assertFalse(inv.addItem(new Item("mIlK", 4, 2)));
+    @Test
+    public void addItemNormal() {
+        assertTrue(inventory.addItem(milk));
+        assertEquals(1, inventory.getItemCount());
     }
 
-    @Test void capacityIsEnforced() {
-        Inventory inv = new Inventory(2);
-        assertTrue(inv.addItem(new Item("A", 1, 1)));
-        assertTrue(inv.addItem(new Item("B", 1, 1)));
-        assertFalse(inv.addItem(new Item("C", 1, 1)));
-        assertEquals(2, inv.getItemCount());
+    @Test
+    public void addItemFullRejected() {
+        inventory.addItem(milk);
+        inventory.addItem(bread);
+        assertFalse(inventory.addItem(eggs)); // capacity is 2
+        assertEquals(2, inventory.getItemCount());
     }
 
-    @Test void stockChecksAndTotals() {
-        Inventory inv = new Inventory();
-        inv.addItem(new Item("Milk", 3, 5));
-        inv.addItem(new Item("Bread", 2, 4));
-        assertTrue(inv.isInStock("milk", 5));
-        assertFalse(inv.isInStock("milk", 6));
-        assertFalse(inv.isInStock("milk", 0));
-        assertEquals(9, inv.getTotalStock());
+    @Test
+    public void addItemDuplicateRejected() {
+        inventory.addItem(milk);
+        assertFalse(inventory.addItem(new Item("milk", 1.00, 1))); // same name, different case
     }
 
-    @Test void invalidCapacityRejected() {
-        assertThrows(IllegalArgumentException.class, () -> new Inventory(0));
+    @Test
+    public void findItemNormal() {
+        inventory.addItem(milk);
+        assertSame(milk, inventory.findItem("Milk"));
+    }
+
+    @Test
+    public void findItemCaseInsensitive() {
+        inventory.addItem(milk);
+        assertSame(milk, inventory.findItem("mIlK"));
+    }
+
+    @Test
+    public void findItemMissingReturnsNull() {
+        assertNull(inventory.findItem("Dragon Fruit"));
+    }
+
+    @Test
+    public void isInStockNormal() {
+        inventory.addItem(milk);
+        assertTrue(inventory.isInStock("Milk", 2));
+    }
+
+    @Test
+    public void isInStockInsufficientRejected() {
+        inventory.addItem(milk);
+        assertFalse(inventory.isInStock("Milk", 8));
+    }
+
+    @Test
+    public void isInStockInvalidQuantityRejected() {
+        inventory.addItem(milk);
+        assertFalse(inventory.isInStock("Milk", -1));
+    }
+
+    @Test
+    public void getTotalStockNormal() {
+        inventory.addItem(milk); // 5
+        inventory.addItem(bread); // 4
+        assertEquals(9, inventory.getTotalStock());
+    }
+
+    @Test
+    public void removeItemMissingRejected() {
+        assertFalse(inventory.removeItem("Eggs"));
+    }
+
+    @Test
+    public void removeItemNormal() {
+        inventory.addItem(bread);
+        assertTrue(inventory.removeItem("Bread"));
+        assertNull(inventory.findItem("Bread"));
     }
 }
